@@ -38,29 +38,6 @@ def gather_user_confirmation(prompt):
     return response[0] =='Y'
 
 
-### Revert the github workflow file modifications
-
-yml_path = Path('.').joinpath('.github','workflows','build_exe_and_release.yml')
-
-yml_content = open(yml_path).read()
-
-replacements = {
-    '!GITHUB_TOKEN!':'$<< secrets.GITHUB_TOKEN >>',
-    '!GITHUB_REF!':'$<< github.ref >>',
-    '!RELEASE_NUM!':'$<< steps.get_version.outputs.VERSION >>',
-    '!UPLOAD_URL!':'$<< steps.create_release.outputs.upload_url >>'
-}
-
-for this, that in replacements.items():
-
-    that = that.replace('<','{').replace('>','}')
-
-    yml_content = yml_content.replace(this,that)
-
-with open(yml_path,'w') as out_file: 
-    
-    out_file.write(yml_content)
-
 ### Ensure the python script was copied into the directory.
 def confirm_script_copied():
 
