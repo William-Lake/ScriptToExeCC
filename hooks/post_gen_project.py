@@ -1,175 +1,192 @@
 from pathlib import Path
+import traceback
 
 
-### Utility functions
+try:
+    
+    DO_GIT_INIT = '{{ cookiecutter.do_init_git_repo }}'[0] == 'Y'
+    
+    DO_PUSH_TO_GITHUB = DO_GIT_INIT and '{{ cookiecutter.do_push_repo_to_github }}'[0] == 'Y'
 
-def exit_program_early():
+    ### Utility functions
 
-    print('Exiting')
+    def exit_program_early():
 
-    exit(1)
+        print('Exiting')
 
-def gather_user_input(prompt,input_prompt='?'):
+        exit(1)
 
-    response = None
+    def gather_user_input(prompt,input_prompt='?'):
 
-    while response is None:
+        response = None
 
-        print(prompt)
+        while response is None:
 
-        response = input(input_prompt).strip()
+            print(prompt)
 
-        if not response:
-            
-            print('Please provide a valid response or type \'exit\' and hit the Enter key to exit the program.')
+            response = input(input_prompt).strip()
 
-            response = None
+            if not response:
+                
+                print('Please provide a valid response or type \'exit\' and hit the Enter key to exit the program.')
 
-        elif response.lower() == 'exit':
+                response = None
 
-            exit_program_early()
+            elif response.lower() == 'exit':
 
-    return response
+                exit_program_early()
 
-def gather_user_confirmation(prompt):
+        return response
 
-    response = gather_user_input(prompt,input_prompt='[Y/N] > ').upper()[0]
+    def gather_user_confirmation(prompt):
 
-    return response[0] =='Y'
+        response = gather_user_input(prompt,input_prompt='[Y/N] > ').upper()[0]
+
+        return response[0] =='Y'
 
 
-### Ensure the python script was copied into the directory.
-def confirm_script_copied():
+    ### Ensure the python script was copied into the directory.
+    def confirm_script_copied():
 
-    input('Copy your python script into the generated directory named {{cookiecutter.name}} and hit the "Enter" key to continue.')
+        input('Copy your python script into the generated directory named {{cookiecutter.name}} and hit the "Enter" key to continue.')
 
-    return Path('.').joinpath(f'{{cookie_cutter.script_name}}.py').exists()
+        return Path('.').joinpath(f'{{cookiecutter.script_name}}.py').exists()
 
-while not confirm_script_copied():
-
-    print('''
-A script named {{cookie_cutter.script_name}}.py could not be found
-in the directory named {{cookiecutter.name}}.
-
-A script named {{cookie_cutter.script_name}}.py MUST be found in the 
-directory {{cookiecutter.name}} for this process to continue.''')
-
-    if not gather_user_confirmation('Try again?'): exit_program_early()
-
-    print('Ok, let\'s try this again.')
-
-# ======================================================================
-
-### Git work
-
-import re
-import subprocess
-
-def run_command(cmd,do_execute=True):
-
-    if do_execute:
-
-        try:
-
-            subprocess.run(cmd,check=True)
-
-        except:
-
-            return False
-
-    else:
-
-        print(' '.join(cmd))
-
-    return True
-
-def gather_tag():
-
-    tag = None
-
-    while tag is None:
-
-        tag = gather_user_input('What tag should be used? (Must be in format v#.#.# E.g. v1.0.0)')
-
-        tag = tag if re.match(r'v\d\.\d\.\d') else None
-
-        if not tag: print('Make sure your tag is in the format v#.#.# (E.g. v1.0.0)')
-
-    return tag
-
-'''
-    run git init
-    Ask user if they want to push their new repo
-        ask user for git repo url
-        ask user if they want to tag repo
-            ensure tag is in correct format
-        build command
-'''
-
-if gather_user_confirmation('Push results to Github?'):
-
-    do_execute_git_commands = run_command(['git','--version'])
-
-    if not do_execute_git_commands:
+    while not confirm_script_copied():
 
         print('''
-Oh no! It looks like git isn't installed and/or available from the command line on your system.
+A script named {{cookiecutter.script_name}}.py could not be found
+in the directory named {{cookiecutter.name}}.
+
+A script named {{cookiecutter.script_name}}.py MUST be found in the 
+directory {{cookiecutter.name}} for this process to continue.''')
+
+        if not gather_user_confirmation('Try again?'): exit_program_early()
+
+        print('Ok, let\'s try this again.')
+
+    # ======================================================================
+
+    ### Git work
+
+    import re
+    import subprocess
+
+    def run_command(cmd,do_execute=True):
+
+        if do_execute:
+
+            try:
+
+                subprocess.run(cmd,check=True)
+
+            except Exception as e:
+                
+                print(f'''
+Oh no! It looks like there was an issue running the command:
+
+    {" ".join(cmd)}
+    
+The problem was:
+
+    {str(e)}
 
 The process will continue, but instead of executing the git commands they will be printed out.
 
-Copy and save them. Once you have git properly set up on your system, open a command prompt
-in your project's directory and run the commands.
+Copy and save them for later use after the errors have been resolved.
+''')                
 
-The things to check are:
-
-    1. Git is installed on your system (https://github.com/git-guides/install-git)
-    2. Git is available on the command line. You'll know if you can open a command prompt, run 'git --version' and get a response similar to 'git version 2.17.1'''')
-
-    git_initialized = run_command(['git','init','-b','main'],do_execute_git_commands)
-
-    if not git_initialized: # What are the chances this would happen?
-
-        print('It looks like there was an issue creating the git repo.')
-
-        exit_program_early()
-
-    if gather_user_confirmation('Push results to a remote GitHub repository?'):
-
-        if gather_user_confirmation('Tag the results?'):
-
-            tag = gather_tag()
+                return False
 
         else:
 
-            tag = None
+            print(' '.join(cmd))
 
-        remote_url = gather_user_input('What\'s the remote url?')
+        return do_execute
+    
+    def run_multiple_commands(cmds,do_execute_git_commands):
+        
+        for cmd in cmds:
+            
+            do_execute_git_commands = run_command(cmd,do_execute_git_commands)
+            
+        return do_execute_git_commands      
 
-        if gather_user_confirmation('Do you want to specify your commit message? Default will be "INITIAL COMMIT"'):
+    def gather_tag():
 
-            commit_message = gather_user_input('What commit message would you like to use?')
+        tag = None
 
-        else:
+        while tag is None:
 
-            commit_message = 'INITIAL COMMIT'
+            tag = gather_user_input('What tag should be used? (Must be in format v#.#.# E.g. v1.0.0)')
 
-        commit_message = f'"{commit_message}"' # Is this necessary?
+            tag = tag if re.match(r'v\d\.\d\.\d',tag) else None
 
-        run_command(['git','add','-A'],do_execute_git_commands)
+            if not tag: print('Make sure your tag is in the format v#.#.# (E.g. v1.0.0)')
 
-        run_command(['git','commit','-m',commit_message],do_execute_git_commands)
+        return tag
 
-        if tag:
+    if DO_GIT_INIT:
 
-            tag_message = f'"Version {tag[1:]}"'
+        do_execute_git_commands = run_command(['git','--version'])
 
-            run_command(['git','tag','-a',tag,'-m',tag_message],do_execute_git_commands)
+        if not all([
+            run_command(['git','init'],do_execute_git_commands),
+            run_command(['git','checkout','-b','main'],do_execute_git_commands)]): # What are the chances this would happen?
 
-            run_command(['git','push','--follow-tags'],do_execute_git_commands)
+            print('It looks like there was an issue creating the git repo.')
 
-        else:
+            exit_program_early()
+        
+        if DO_PUSH_TO_GITHUB:
+            
+            remote_url = gather_user_input('What\'s the remote url?')
+            
+            do_execute_git_commands = run_multiple_commands([
+                ['git','remote','add','origin',remote_url],
+                ['git','push','--set-upstream','origin','main']
+            ],do_execute_git_commands)
+            
+            if gather_user_confirmation('Tag the results?'):
 
-            run_command(['git','push'],do_execute_git_commands)
+                tag = gather_tag()
 
+            else:
+
+                tag = None
+
+            if gather_user_confirmation('Do you want to specify your commit message? Default will be "INITIAL COMMIT"'):
+
+                commit_message = gather_user_input('What commit message would you like to use?')
+
+            else:
+
+                commit_message = 'INITIAL COMMIT'
+
+            commit_message = f'"{commit_message}"' # Is this necessary?
+            
+            do_execute_git_commands = run_multiple_commands([
+                ['git','add','-A'],
+                ['git','commit','-m',commit_message]
+            ],do_execute_git_commands)
+
+            if tag:
+
+                tag_message = f'"Version {tag[1:]}"'
+                
+                do_execute_git_commands = run_multiple_commands([
+                    ['git','tag','-a',tag,'-m',tag_message],
+                    ['git','push','--follow-tags']
+                ],do_execute_git_commands)                
+
+            else:
+
+                run_command(['git','push'],do_execute_git_commands)
+
+except Exception as e:
+    
+    traceback.print_exc()
+    
+    exit(1)
 
 

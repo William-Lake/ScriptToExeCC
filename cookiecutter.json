@@ -1,8 +1,10 @@
 {
-    "name": "pram",
+    "name": "Pram",
     "script_name": "do_a_thing",
     "exe_name": "PRAM",
     "acronym": "PRoject nAMe",
     "acronym_link": "https://acronymify.com/PRAM?q=project+name",
-    "requirements": "pandas,tqdm"
+    "requirements": "pandas,tqdm",
+    "do_init_git_repo": ["Yes","No"],
+    "do_push_repo_to_github": ["Yes","No"]
 }
