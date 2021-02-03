@@ -1,0 +1,8 @@
+{
+    "name": "pram",
+    "script_name": "do_a_thing",
+    "exe_name": "PRAM",
+    "acronym": "PRoject nAMe",
+    "acronym_link": "https://acronymify.com/PRAM?q=project+name",
+    "requirements": "pandas,tqdm"
+}
