@@ -57,7 +57,7 @@ try:
             'Copy your python script into the generated directory named {{cookiecutter.name}} and hit the "Enter" key to continue.'
         )
 
-        return Path(".").joinpath("{{cookiecutter.script_name}}.py").exists()
+        return Path("./src").joinpath("{{cookiecutter.script_name}}.py").exists()
 
     while not confirm_script_copied():
 
@@ -213,6 +213,8 @@ Copy and save them for later use after the errors have been resolved.
                     ],
                     do_execute_git_commands,
                 )
+                
+    print('Done!')
 
 except Exception as e:
 
