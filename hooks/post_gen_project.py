@@ -187,6 +187,8 @@ Copy and save them for later use after the errors have been resolved.
             do_execute_git_commands = run_multiple_commands(
                 [
                     ["git", "remote", "add", "origin", remote_url],
+                    ["git","add","-A"],
+                    ["git","commit","-m","INITIAL COMMIT"],
                     ["git", "push", "--set-upstream", "origin", "main"],
                 ],
                 do_execute_git_commands,
@@ -200,25 +202,6 @@ Copy and save them for later use after the errors have been resolved.
 
                 tag = None
 
-            if gather_user_confirmation(
-                'Do you want to specify your commit message? Default will be "INITIAL COMMIT"'
-            ):
-
-                commit_message = gather_user_input(
-                    "What commit message would you like to use?"
-                )
-
-            else:
-
-                commit_message = "INITIAL COMMIT"
-
-            commit_message = '"{0}"'.format(commit_message)  # Is this necessary?
-
-            do_execute_git_commands = run_multiple_commands(
-                [["git", "add", "-A"], ["git", "commit", "-m", commit_message]],
-                do_execute_git_commands,
-            )
-
             if tag:
 
                 tag_message = '"Version {0}"'.format(tag[1:])
@@ -230,10 +213,6 @@ Copy and save them for later use after the errors have been resolved.
                     ],
                     do_execute_git_commands,
                 )
-
-            else:
-
-                run_command(["git", "push"], do_execute_git_commands)
 
 except Exception as e:
 
