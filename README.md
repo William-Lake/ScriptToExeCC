@@ -17,6 +17,8 @@ This project reduces the time it takes to meet those needs.
 - [Python 3](https://www.python.org/downloads/)
 - cookiecutter
 
+Having git installed and on your Path is optional, but recommended.
+
 ## Usage
 
 `cookiecutter https://github.com/William-Lake/ScriptToExeCC.git`
