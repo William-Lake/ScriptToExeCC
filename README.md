@@ -2,7 +2,7 @@
 
 Uses the incredibly helpful [cookiecutter](https://github.com/cookiecutter/cookiecutter) library to generate a bare-bones Python project for personal use.
 
-The generated project includes a [github action](https://github.com/features/actions) which uses [pyinstaller](https://www.pyinstaller.org/) via [Pyinstaller Windows](https://github.com/marketplace/actions/pyinstaller-windows) to generate an .exe and add it in a newly generated release.
+The generated project includes a [github action](https://github.com/features/actions) which uses [pyinstaller](https://www.pyinstaller.org/) via [Pyinstaller Windows](https://github.com/marketplace/actions/pyinstaller-windows) to generate an .exe and add it to a newly generated release.
 
 The action is triggered when a new tag matching the syntax v#.#.# (E.g. v1.0.0) is created/pushed.
 
