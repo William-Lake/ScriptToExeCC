@@ -57,7 +57,7 @@ try:
             'Copy your python script into the generated directory named {{cookiecutter.name}} and hit the "Enter" key to continue.'
         )
 
-        return Path("./src").joinpath("{{cookiecutter.script_name}}.py").exists()
+        return Path("{{cookiecutter.script_name}}.py").exists()
 
     while not confirm_script_copied():
 
@@ -89,7 +89,7 @@ directory {{cookiecutter.name}} for this process to continue."""
             req.strip()
             for req
             in reqs.split(",")
-        ])
+        ]) + '\ncolorama'
 
         with open(req_path,'w') as out_file:
 
