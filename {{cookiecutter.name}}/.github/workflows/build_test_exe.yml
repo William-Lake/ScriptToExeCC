@@ -1,0 +1,23 @@
+name: Build Test .exe
+on:
+  push:
+    tags:
+      - 'Issue_*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install Dependencies
+        run: |
+          python -m pip install pyinstaller
+          python -m pip install -r requirements.txt
+      - name: Build EXE
+        run: pyinstaller --onefile {{ cookiecutter.script_name }}.py
+      - name: Test Executable
+        run: .\dist\{{ cookiecutter.script_name }}.exe -h
